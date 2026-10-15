@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Una sola URL: el generador es una página y no tiene otra. Sin <lastmod>,
+     que con una entrada no aporta nada y se queda viejo solo. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://badge.awscommunity.org.bo/</loc>
+  </url>
+</urlset>

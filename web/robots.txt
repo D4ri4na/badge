@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://badge.awscommunity.org.bo/sitemap.xml

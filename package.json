@@ -1,0 +1,18 @@
+{
+  "name": "acd-bo-badge",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Generador de badges para AWS Community Day Bolivia 2026",
+  "scripts": {
+    "test": "node --test",
+    "dev": "node --env-file-if-exists=.env scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "build:assets": "node scripts/strip-role-text.mjs && node scripts/build-role-text.mjs && node scripts/build-icons.mjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.29.0",
+    "sharp": "^0.35.3"
+  }
+}

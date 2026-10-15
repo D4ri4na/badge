@@ -1,0 +1,35 @@
+# Dependencias y artefactos de build
+node_modules/
+dist/
+out/
+.aws-sam/
+
+# Configuración local. El repo no lleva secretos: las credenciales de AWS salen
+# de la cadena estándar (~/.aws, variables de entorno o el rol de la instancia),
+# nunca de un archivo acá. Igual se bloquea el .env por si alguna vez se guarda
+# algo sensible. .env.example sí se versiona: documenta las variables sin valores.
+.env
+.env.*
+!.env.example
+
+# Credenciales, por si acaso
+*.pem
+*.key
+*.p12
+credentials
+
+# Material de trabajo: fotos de personas reales usadas para probar el encuadre.
+# No se publican. peresoso.png es la excepción porque el build lo necesita:
+# scripts/cutout-mascot.mjs lo recorta para generar assets/mascot.png.
+docs/*
+!docs/peresoso.png
+
+# Ruido del sistema y de editores
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Secreto del header de origen. Nunca al repo.
+.secret-origen

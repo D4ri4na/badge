@@ -1,0 +1,66 @@
+name: Deploy Badge Website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build:
+    name: Build website
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+      - name: Install modules
+        run: pnpm install --frozen-lockfile
+      - name: Build application
+        run: pnpm build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: website-dist
+          path: dist/
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.ROLE }}
+          role-session-name: ${{ secrets.ROLE_SESSION }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Deploy to S3
+        run: aws s3 sync --delete ./dist/ s3://${{ secrets.BUCKET_NAME }}
+      - name: Create CloudFront invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"

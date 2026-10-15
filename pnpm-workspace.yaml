@@ -1,0 +1,35 @@
+# Toda la configuración de pnpm vive acá. No hay .npmrc y no conviene que lo
+# haya: pnpm 11 no lee estas opciones desde ahí y las ignora en silencio.
+# Verificado con `pnpm config list` en 11.11.0 — las mismas tres claves en
+# .npmrc no aparecen en la config resuelta, y en este archivo sí.
+
+# Falla si node_modules no coincide con package.json, en vez de "arreglarlo".
+#
+# El valor importa: es un enum, no un booleano. Con `true` —y por defecto—
+# pnpm reinstala solo y sigue de largo, así que un lockfile desincronizado se
+# corrige en silencio y nunca te enterás de que lo estaba. `error` es lo único
+# que corta. Verificado empíricamente contra un node_modules desfasado a mano.
+verifyDepsBeforeRun: error
+
+# --- Mitigación de supply chain ---
+
+# No instalar versiones publicadas hace menos de 7 días (10080 minutos).
+# Las versiones comprometidas se detectan y despublican casi siempre en horas,
+# así que esta ventana sola frena la mayoría de los casos reales.
+minimumReleaseAge: 10080
+
+# Allowlist explícito y vacío de paquetes autorizados a correr scripts de
+# build. pnpm 10+ ya bloquea los lifecycle scripts por defecto; dejarlo
+# escrito hace que agregar uno sea una decisión consciente y revisable en el
+# diff, no un cambio silencioso.
+#
+# Esto es lo que de verdad bloquea los scripts de instalación: probado con un
+# paquete con postinstall, pnpm lo rechaza con ERR_PNPM_IGNORED_BUILDS. El
+# `ignore-scripts=true` que había en .npmrc no agregaba nada.
+onlyBuiltDependencies: []
+
+# Lo que había acá antes —nodeLinker: hoisted y supportedArchitectures con
+# linux/arm64— existía para el zip de la Lambda: sharp trae binarios nativos y
+# había que empaquetar los del runtime, no los de la máquina que buildeaba.
+# Ya no se despliega nada a AWS y sharp quedó como devDependency, así que
+# alcanza con los binarios de la plataforma local.

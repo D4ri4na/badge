@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generá tu badge del AWS Community Day Bolivia 2026</title>
+    <meta
+      name="description"
+      content="Creá tu badge del AWS Community Day Bolivia 2026: elegí tu rol, subí tu foto y descargalo. Todo pasa en tu navegador y la foto no sale de tu dispositivo."
+    />
+    <link rel="canonical" href="https://badge.awscommunity.org.bo/" />
+
+    <!-- Como no hay badge alojado, la home es el único link compartible que
+         tiene el producto: así se ve al pegarlo en LinkedIn o WhatsApp.
+         Falta og:image, así que la tarjeta sale de solo texto; por eso el
+         twitter:card es "summary" y no "summary_large_image", que sin imagen
+         muestra un recuadro vacío. Las dos cosas se cambian juntas. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AWS Community Day Bolivia 2026" />
+    <meta property="og:title" content="Generá tu badge del AWS Community Day Bolivia 2026" />
+    <meta
+      property="og:description"
+      content="Elegí tu rol, subí tu foto y descargá tu badge. Sin cuentas y sin subir nada."
+    />
+    <meta property="og:url" content="https://badge.awscommunity.org.bo/" />
+    <meta property="og:locale" content="es_BO" />
+    <meta name="twitter:card" content="summary" />
+
+    <meta name="theme-color" content="#135e43" />
+    <link rel="icon" href="./assets/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="./assets/favicon-192.png" sizes="192x192" type="image/png" />
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+
+    <!-- Fija el link del "Texto para publicar" al dominio real. Sin esto sale
+         de location.href, así que quien entre por el dominio de CloudFront
+         propaga ese dominio en su publicación. Ver web/app.js. -->
+    <script>
+      window.BADGE_SITE_URL = 'https://badge.awscommunity.org.bo/';
+    </script>
+
+    <!-- Ocupa el lugar del pie de página que hubo acá un rato: es de donde el
+         crawler saca el nombre, la fecha y la sede del evento ahora que no
+         están en pantalla. La página no tiene copy propio a propósito —el
+         encabezado se dejó pelado para que el generador arranque de una— y esto
+         es la forma que Google pide para darle contexto sin agregar texto
+         visible. Dejar el mismo párrafo escondido con CSS sería cloaking y se
+         penaliza; esto no.
+
+         @type es WebApplication y no Event: la página es una herramienta, no se
+         puede asistir a nada desde acá. El evento va anidado en `about`
+         justamente para no reclamar rich results de Event que no corresponden.
+
+         startDate va en ISO porque schema.org lo exige; EVENT.startDate en
+         theme.mjs tiene la misma fecha y test/seo.test.mjs las compara. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Generador de badges del AWS Community Day Bolivia 2026",
+        "url": "https://badge.awscommunity.org.bo/",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Cualquier navegador",
+        "inLanguage": "es-BO",
+        "isAccessibleForFree": true,
+        "about": {
+          "@type": "Event",
+          "name": "AWS Community Day Bolivia 2026",
+          "startDate": "2026-08-29",
+          "url": "https://awscommunity.org.bo/",
+          "location": {
+            "@type": "Place",
+            "name": "Universidad Católica Boliviana",
+            "address": "Santa Cruz, Bolivia"
+          }
+        }
+      }
+    </script>
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <img
+          class="brand"
+          src="./assets/logo-AWS-CD-Bo-white.svg"
+          alt="AWS Community Day Bolivia"
+          width="1670"
+          height="499"
+        />
+        <h1>Generá tu badge</h1>
+      </header>
+
+      <form id="form" novalidate>
+        <div class="picks">
+          <label class="field">
+            <span>Voy como</span>
+            <select id="role">
+              <option value="volunteer">Voluntario/a</option>
+              <option value="speaker">Speaker</option>
+              <option value="attendee">Asistente</option>
+              <option value="organizer">Organizador/a</option>
+              <option value="sponsor">Sponsor</option>
+              <option value="ally">Comunidad Aliada</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Formato</span>
+            <select id="layout">
+              <option value="feed">Feed 4:5</option>
+              <option value="story">Story 9:16</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- La vista previa es también la zona de subida. Arranca mostrando el
+             perezoso, así el badge ya existe apenas entrás y la foto es una
+             mejora opcional, no un requisito para empezar. -->
+        <div class="stage" id="stage">
+          <canvas id="preview" width="540" height="675"></canvas>
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+          <button id="pick" class="pick" type="button">
+            <strong>Elegí tu foto</strong>
+            <small>o quedate con el perezoso</small>
+          </button>
+          <button id="clear" class="clear" type="button" hidden aria-label="Quitar la foto" title="Quitar la foto">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+
+        <div id="controls" class="controls" hidden>
+          <div class="mode">
+            <p class="hint">Arrastrá la foto para moverla.</p>
+            <button id="reset" class="link" type="button">Centrar</button>
+          </div>
+          <label class="field slider">
+            <span>Zoom</span>
+            <input id="zoom" type="range" min="100" max="250" value="100" step="1" />
+          </label>
+        </div>
+
+        <ul id="warnings" class="warnings" hidden></ul>
+
+        <button id="submit" type="submit">Generar mi badge</button>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <section id="result" class="result" hidden>
+        <p class="result-title">Tu badge del AWS Community Day Bolivia</p>
+        <img id="badge" alt="Tu badge del AWS Community Day Bolivia" />
+
+        <div class="actions">
+          <a id="download" class="btn" download="badge-acd-bolivia.jpg">Descargar</a>
+          <button id="share" class="btn ghost" type="button" hidden>Compartir</button>
+          <button id="again" class="btn ghost" type="button">Usar otro</button>
+        </div>
+
+        <div class="caption">
+          <div class="caption-head">
+            <strong>Texto para publicar</strong>
+            <button id="copy" class="link" type="button">Copiar</button>
+          </div>
+          <pre id="captiontext"></pre>
+        </div>
+
+        <p class="hint center">
+          Descargá la imagen y subila a tu red con ese texto. No queda ninguna
+          copia acá: si cerrás la página, el badge se va con ella.
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
