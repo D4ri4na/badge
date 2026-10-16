@@ -267,7 +267,7 @@ form.addEventListener('submit', async (e) => {
     badgeUrl = URL.createObjectURL(blob);
     badgeFile = new File([blob], 'badge-acd-bolivia.jpg', { type: 'image/jpeg' });
 
-    caption = buildCaption({ role: roleSelect.value, url: 'link pendiente' });
+    caption = buildCaption({ role: roleSelect.value, url: 'https://aws.studentcommunityday.com/badge' });
     showResult();
     setStatus('');
   } catch (err) {
