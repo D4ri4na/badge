@@ -56,7 +56,7 @@ test('el sitemap declara la home y nada más', () => {
 test('están el título y las descripciones que se ven al compartir', () => {
   const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
   assert.ok(title, 'falta el <title>');
-  assert.match(title, /AWS Community Day Bolivia/);
+  assert.match(title, /AWS Student Community Day/);
 
   // Google corta alrededor de los 160 caracteres, y por debajo de 70 se está
   // desperdiciando el único texto que aparece en el resultado de búsqueda.

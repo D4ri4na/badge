@@ -26,7 +26,7 @@ import { MASCOT, ICONS } from '../web/theme.mjs';
 const root = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
 
 // Misma placa que el badge sin foto, para que el ícono y el producto combinen.
-const PLATE = MASCOT.gradient[0];
+const PLATE = '#101014';
 
 // Aire alrededor, en fracción del lado. Los íconos se recortan en círculo en
 // varias plataformas (Android, algunos lanzadores), así que el dibujo no puede
@@ -34,9 +34,9 @@ const PLATE = MASCOT.gradient[0];
 const MARGIN = 0.12;
 
 const SIZES = {
-  'favicon-32.png': 32,
-  'favicon-192.png': 192,
-  'apple-touch-icon.png': 180,
+  'character-icon-32.png': 32,
+  'character-icon-192.png': 192,
+  'character-touch-icon.png': 180,
 };
 
 // La lista de archivos es la de theme.mjs, que es la que lee scripts/build.mjs.
@@ -51,7 +51,7 @@ const trimmed = await sharp(root(`assets/${MASCOT.asset}`)).trim({ threshold: 1 
 const { width, height } = await sharp(trimmed).metadata();
 console.log(`mascota recortada a ${width}x${height}`);
 
-const side = Math.min(width, height);
+const side = Math.round(Math.min(width, height) * 0.72);
 const square = await sharp(trimmed)
   .extract({ left: Math.round((width - side) / 2), top: 0, width: side, height: side })
   .toBuffer();

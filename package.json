@@ -8,7 +8,7 @@
     "test": "node --test",
     "dev": "node --env-file-if-exists=.env scripts/serve.mjs",
     "build": "node scripts/build.mjs",
-    "build:assets": "node scripts/strip-role-text.mjs && node scripts/build-role-text.mjs && node scripts/build-icons.mjs"
+    "build:assets": "node scripts/build-role-text.mjs && node scripts/build-icons.mjs"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Generá tu badge del AWS Community Day Bolivia 2026</title>
+    <title>Generá tu badge del AWS Student Community Day Santa Cruz - Bolivia 2026</title>
     <meta
       name="description"
-      content="Creá tu badge del AWS Community Day Bolivia 2026: elegí tu rol, subí tu foto y descargalo. Todo pasa en tu navegador y la foto no sale de tu dispositivo."
+      content="Creá tu badge del AWS Student Community Day: elegí tu rol, fondo e ilustración o usá tu foto. Descargalo sin subir tu imagen a ningún servidor."
     />
     <link rel="canonical" href="https://badge.awscommunity.org.bo/" />
 
@@ -16,8 +16,8 @@
          twitter:card es "summary" y no "summary_large_image", que sin imagen
          muestra un recuadro vacío. Las dos cosas se cambian juntas. -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="AWS Community Day Bolivia 2026" />
-    <meta property="og:title" content="Generá tu badge del AWS Community Day Bolivia 2026" />
+    <meta property="og:site_name" content="AWS Student Community Day Santa Cruz - Bolivia 2026" />
+    <meta property="og:title" content="Generá tu badge del AWS Student Community Day Santa Cruz - Bolivia 2026" />
     <meta
       property="og:description"
       content="Elegí tu rol, subí tu foto y descargá tu badge. Sin cuentas y sin subir nada."
@@ -26,10 +26,10 @@
     <meta property="og:locale" content="es_BO" />
     <meta name="twitter:card" content="summary" />
 
-    <meta name="theme-color" content="#135e43" />
-    <link rel="icon" href="./assets/favicon-32.png" sizes="32x32" type="image/png" />
-    <link rel="icon" href="./assets/favicon-192.png" sizes="192x192" type="image/png" />
-    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#c4452a" />
+    <link rel="icon" href="./assets/character-icon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="./assets/character-icon-192.png" sizes="192x192" type="image/png" />
+    <link rel="apple-touch-icon" href="./assets/character-touch-icon.png" />
 
     <!-- Fija el link del "Texto para publicar" al dominio real. Sin esto sale
          de location.href, así que quien entre por el dominio de CloudFront
@@ -56,7 +56,7 @@
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "Generador de badges del AWS Community Day Bolivia 2026",
+        "name": "Generador de badges del AWS Student Community Day Santa Cruz - Bolivia 2026",
         "url": "https://badge.awscommunity.org.bo/",
         "applicationCategory": "DesignApplication",
         "operatingSystem": "Cualquier navegador",
@@ -64,12 +64,12 @@
         "isAccessibleForFree": true,
         "about": {
           "@type": "Event",
-          "name": "AWS Community Day Bolivia 2026",
-          "startDate": "2026-08-29",
+          "name": "AWS Student Community Day Santa Cruz - Bolivia 2026",
+          "startDate": "2026-10-24",
           "url": "https://awscommunity.org.bo/",
           "location": {
             "@type": "Place",
-            "name": "Universidad Católica Boliviana",
+            "name": "UPB",
             "address": "Santa Cruz, Bolivia"
           }
         }
@@ -83,8 +83,8 @@
       <header>
         <img
           class="brand"
-          src="./assets/logo-AWS-CD-Bo-white.svg"
-          alt="AWS Community Day Bolivia"
+          src="./assets/event-logo.svg"
+          alt="AWS Student Community Day Santa Cruz - Bolivia"
           width="1670"
           height="499"
         />
@@ -114,15 +114,35 @@
           </label>
         </div>
 
+        <div class="picks">
+          <label class="field">
+            <span>Fondo</span>
+            <select id="background">
+              <option value="two">Cuadros de colores</option>
+              <option value="one">Líneas de colores</option>
+            </select>
+          </label>
+          <label class="field" id="pose-field">
+            <span>Ilustración</span>
+            <select id="pose">
+              <option value="wave">Saludando</option>
+              <option value="speaker">Con micrófono</option>
+              <option value="laptop">Con laptop</option>
+              <option value="explorer">Explorando</option>
+              <option value="thumbs">Pulgar arriba</option>
+            </select>
+          </label>
+        </div>
+
         <!-- La vista previa es también la zona de subida. Arranca mostrando el
-             perezoso, así el badge ya existe apenas entrás y la foto es una
+             mascota, así el badge ya existe apenas entrás y la foto es una
              mejora opcional, no un requisito para empezar. -->
         <div class="stage" id="stage">
           <canvas id="preview" width="540" height="675"></canvas>
           <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" hidden />
           <button id="pick" class="pick" type="button">
             <strong>Elegí tu foto</strong>
-            <small>o quedate con el perezoso</small>
+            <small>o quedate con la mascota</small>
           </button>
           <button id="clear" class="clear" type="button" hidden aria-label="Quitar la foto" title="Quitar la foto">
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
@@ -149,8 +169,8 @@
       </form>
 
       <section id="result" class="result" hidden>
-        <p class="result-title">Tu badge del AWS Community Day Bolivia</p>
-        <img id="badge" alt="Tu badge del AWS Community Day Bolivia" />
+        <p class="result-title">Tu badge del AWS Student Community Day Santa Cruz - Bolivia</p>
+        <img id="badge" alt="Tu badge del AWS Student Community Day Santa Cruz - Bolivia" />
 
         <div class="actions">
           <a id="download" class="btn" download="badge-acd-bolivia.jpg">Descargar</a>

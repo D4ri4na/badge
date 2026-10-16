@@ -12,11 +12,11 @@
 
 import {
   CANVAS,
-  BANDS,
-  SCRIM,
+  contentBox,
+  resolveBackground,
+  resolvePose,
+  LOGO,
   PHOTO,
-  MASCOT,
-  BASE_FRAME,
   JPEG_QUALITY,
   resolveFormat,
   resolveRoleText,
@@ -59,14 +59,14 @@ function loadImage(name) {
  * Si alguno no carga se sigue sin él en vez de romper: un badge sin marco es
  * un defecto visible y recuperable; una página en blanco no.
  */
-export async function loadArt(role) {
-  const opcional = (p) => p.catch((err) => (console.warn(err.message), null));
-  const [frame, text, mascot] = await Promise.all([
-    opcional(loadImage(BASE_FRAME)),
-    opcional(loadImage(resolveRoleText(role ?? DEFAULT_ROLE))),
-    opcional(loadImage(MASCOT.asset)),
+export async function loadArt(role, background, pose) {
+  const [frame, text, mascot, logo] = await Promise.all([
+    loadImage(resolveBackground(background)),
+    loadImage(resolveRoleText(role ?? DEFAULT_ROLE)),
+    loadImage(resolvePose(pose)),
+    loadImage(LOGO),
   ]);
-  return { frame, text, mascot };
+  return { frame, text, mascot, logo };
 }
 
 // --- Saturación ---
@@ -148,78 +148,19 @@ function cropBitmap(bitmap, crop, size) {
   }).catch(() => null);
 }
 
-function drawScrim(ctx, size, s) {
-  const height = SCRIM.height * s;
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
-  grad.addColorStop(0, `rgba(0,0,0,${SCRIM.opacity})`);
-  grad.addColorStop(0.55, `rgba(0,0,0,${SCRIM.opacity * 0.28})`);
-  grad.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size.w, height);
+// El SVG del logo ya define el área visible y conserva su proporción.
+function drawLogo(ctx, size, logo) {
+  if (!logo) return;
+  const s = size.w / CANVAS.w;
+  ctx.drawImage(logo, 260 * s, 115 * s, 560 * s, 240 * s);
 }
 
-// Grano del fondo de la mascota. Un mosaico chico generado una sola vez y
-// repetido: regenerarlo en cada dibujo costaría más que todo el resto junto.
-let grainTile = null;
-
-function grain() {
-  if (grainTile) return grainTile;
-  const tile = document.createElement('canvas');
-  tile.width = tile.height = 128;
-  const c = tile.getContext('2d');
-  const data = c.createImageData(128, 128);
-  for (let i = 0; i < data.data.length; i += 4) {
-    const v = (Math.random() * 255) | 0;
-    data.data[i] = data.data[i + 1] = data.data[i + 2] = v;
-    data.data[i + 3] = 255;
-  }
-  c.putImageData(data, 0, 0);
-  grainTile = tile;
-  return tile;
-}
-
-function drawMascot(ctx, size, s, mascot) {
-  // El degradado admite cualquier cantidad de paradas, repartidas parejo.
-  // Con un solo color queda plano, que es un uso válido y no un error.
-  const g = ctx.createLinearGradient(size.w, 0, size.w * 0.1, size.h);
-  MASCOT.gradient.forEach((color, i, all) =>
-    g.addColorStop(all.length === 1 ? 0 : i / (all.length - 1), color),
-  );
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size.w, size.h);
-
-  ctx.save();
-  ctx.globalAlpha = MASCOT.grain;
-  ctx.fillStyle = ctx.createPattern(grain(), 'repeat');
-  ctx.fillRect(0, 0, size.w, size.h);
-  ctx.restore();
-
+function drawMascot(ctx, box, mascot) {
   if (!mascot) return;
-  const target = size.w * MASCOT.width;
-  const h = (target * mascot.height) / mascot.width;
-  // Centrado en el espacio libre entre el logo y la ola, no en el alto total:
-  // así queda bien tanto en 4:5 como en 9:16, que tiene mucho más aire.
-  const freeBottom = size.h - (CANVAS.h - BANDS.bottomStart) * s;
-  const top = BANDS.topEnd * s + (freeBottom - BANDS.topEnd * s - h) / 2;
-  ctx.drawImage(mascot, (size.w - target) / 2, top, target, h);
-}
-
-/**
- * Dibuja el marco. En 4:5 va estirado al lienzo; en formatos más altos se parte
- * en las dos bandas con dibujo —logo arriba, ola abajo— y se separan, porque el
- * medio es transparente y solo muestra foto. Estirarlo no pierde nada y evita
- * pedirle a diseño un export por formato.
- */
-function drawBanded(ctx, size, s, img) {
-  if (!img) return;
-  const isFeed = Math.abs(size.h / size.w - CANVAS.h / CANVAS.w) < 0.001;
-  if (isFeed) {
-    ctx.drawImage(img, 0, 0, size.w, size.h);
-    return;
-  }
-  const bh = CANVAS.h - BANDS.bottomStart;
-  ctx.drawImage(img, 0, 0, CANVAS.w, BANDS.topEnd, 0, 0, size.w, BANDS.topEnd * s);
-  ctx.drawImage(img, 0, BANDS.bottomStart, CANVAS.w, bh, 0, size.h - bh * s, size.w, bh * s);
+  const scale = Math.min(box.w / mascot.width, box.h / mascot.height);
+  const w = mascot.width * scale;
+  const h = mascot.height * scale;
+  ctx.drawImage(mascot, box.x + (box.w - w) / 2, box.y + (box.h - h) / 2, w, h);
 }
 
 // --- Render ---
@@ -233,22 +174,33 @@ function drawBanded(ctx, size, s, img) {
  *   bitmap null = modo mascota · hq = remuestreo caro, solo para la descarga
  */
 export async function paint(ctx, size, state) {
-  // Las medidas del diseño (BANDS, SCRIM) están en el sistema del marco 4:5 a
-  // 1080 de ancho. `s` las lleva al lienzo que toque.
   const s = size.w / CANVAS.w;
+  const box = contentBox(size);
   ctx.clearRect(0, 0, size.w, size.h);
+  ctx.fillStyle = '#050505';
+  ctx.fillRect(0, 0, size.w, size.h);
+  if (state.art?.frame) ctx.drawImage(state.art.frame, 0, 0, size.w, size.h);
 
   if (state.bitmap) {
-    await drawPhoto(ctx, size, state);
-    // El velo solo aplica al modo foto: el fondo de la mascota ya es oscuro y
-    // el logo se lee sin problema.
-    drawScrim(ctx, size, s);
+    ctx.save();
+    try {
+      ctx.beginPath();
+      ctx.roundRect(box.x, box.y, box.w, box.h, 32 * s);
+      ctx.clip();
+      ctx.translate(box.x, box.y);
+      await drawPhoto(ctx, { w: box.w, h: box.h }, state);
+    } finally {
+      ctx.restore();
+    }
   } else {
-    drawMascot(ctx, size, s, state.art?.mascot);
+    drawMascot(ctx, box, state.art?.mascot);
   }
 
-  drawBanded(ctx, size, s, state.art?.frame);
-  drawBanded(ctx, size, s, state.art?.text);
+  drawLogo(ctx, size, state.art?.logo);
+  if (state.art?.text) {
+    ctx.drawImage(state.art.text, 0, 1100, 1080, 250,
+      0, size.h - 250 * s, size.w, 250 * s);
+  }
 }
 
 /**

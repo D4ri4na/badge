@@ -14,7 +14,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { cp, mkdir, rm, stat } from 'node:fs/promises';
-import { BASE_FRAME, ICONS, MASCOT, ROLE_TEXT } from '../web/theme.mjs';
+import { BACKGROUNDS, POSES, LOGO, ICONS, ROLE_TEXT } from '../web/theme.mjs';
 
 const root = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url));
 
@@ -25,7 +25,7 @@ const DIST = root('dist');
 await rm(DIST, { recursive: true, force: true });
 await cp(WEB, DIST, { recursive: true });
 
-const roleAssets = [BASE_FRAME, MASCOT.asset, ...Object.values(ROLE_TEXT), ...ICONS];
+const roleAssets = [...Object.values(BACKGROUNDS), ...Object.values(POSES), LOGO, ...Object.values(ROLE_TEXT), ...ICONS];
 const distAssets = root('dist/assets');
 await mkdir(distAssets, { recursive: true });
 
@@ -35,4 +35,4 @@ for (const name of roleAssets) {
   await cp(src, `${distAssets}/${name}`);
 }
 
-console.log(`dist/ armado: web/ completo + ${roleAssets.length} PNG de assets/`);
+console.log(`dist/ armado: web/ completo + ${roleAssets.length} imágenes de assets/`);

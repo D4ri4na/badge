@@ -1,4 +1,4 @@
-# Generador de badges · AWS Community Day Bolivia 2026
+# Generador de badges · AWS Student Community Day SCZ 2026
 
 Elegís tu rol, ponés una foto y te descargás tu badge del evento.
 

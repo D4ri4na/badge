@@ -36,14 +36,14 @@ export function resolveFormat(name) {
 export const JPEG_QUALITY = 0.94;
 
 export const EVENT = {
-  name: 'AWS Community Day Bolivia',
-  date: '29 de Agosto, 2026',
+  name: 'AWS Student Community Day Santa Cruz - Bolivia',
+  date: '24 de Octubre, 2026',
   // La misma fecha en ISO 8601, que es lo que exige schema.org para el
   // JSON-LD del <head>. Va aparte y no reformateada porque `date` se pega
   // tal cual en el texto para redes. Se cambian juntas; las compara
   // test/seo.test.mjs.
-  startDate: '2026-08-29',
-  venue: 'UCB, Santa Cruz, Bolivia',
+  startDate: '2026-10-24',
+  venue: 'UPB, Santa Cruz, Bolivia',
 };
 
 // URL canónica del generador. Es el link que va en el texto para publicar y el
@@ -63,6 +63,30 @@ export const SITE_URL = 'https://badge.awscommunity.org.bo/';
 // volver a correr el script.
 export const BASE_FRAME = 'frame-base.png';
 
+export const BACKGROUNDS = { one: 'background-1.png', two: 'background-2.png' };
+export const POSES = {
+  wave: 'pose-5.png',
+  speaker: 'pose-1.png',
+  laptop: 'pose-2.png',
+  explorer: 'pose-3.png',
+  thumbs: 'pose-4.png',
+};
+export const LOGO = 'event-logo.svg';
+
+export function resolveBackground(name) {
+  return BACKGROUNDS[name] ?? BACKGROUNDS.two;
+}
+
+export function resolvePose(name) {
+  return POSES[name] ?? POSES.wave;
+}
+
+// Espacio central compartido por la ilustración y la foto personal.
+export function contentBox(size) {
+  const s = size.w / CANVAS.w;
+  return { x: 190 * s, y: 390 * s, w: 700 * s, h: size.h - 690 * s };
+}
+
 export const ROLE_TEXT = {
   volunteer: 'text-volunteer.png',
   speaker: 'text-speaker.png',
@@ -80,7 +104,7 @@ export const DEFAULT_ROLE = 'volunteer';
 // El fondo es propuesta del código, no viene de diseño: degradado con la paleta
 // del marco más grano tenue para que combine con la textura de la ola.
 export const MASCOT = {
-  asset: 'mascot.png',
+  asset: 'pose-5.png',
   width: 0.66, // fracción del ancho del lienzo
   gradient: ['#232F3E'],
   grain: 0.055,
@@ -90,14 +114,14 @@ export const MASCOT = {
 // mascota sobre la misma placa que usa el badge, así la pestaña y el producto
 // se parecen. Están acá y no sueltos en el HTML porque scripts/build.mjs deriva
 // de este archivo la lista de lo que copia a dist/.
-export const ICONS = ['favicon-32.png', 'favicon-192.png', 'apple-touch-icon.png'];
+export const ICONS = ['character-icon-32.png', 'character-icon-192.png', 'character-touch-icon.png'];
 
 // --- Texto para compartir ---
 
 // PLACEHOLDER: falta confirmar los hashtags y cuentas oficiales del evento.
 // Tres o cuatro alcanzan; en LinkedIn más hashtags rinden peor, y en X comen
 // caracteres del límite.
-export const HASHTAGS = ['#AWSCommunityDayBolivia', '#AWSCommunity', '#AWSBolivia', '#AWS', '#CloudComputing', '#Bolivia'];
+export const HASHTAGS = ['#AWSStudentCommunityDay', '#StudentCommunityDayBolivia', '#AWSStudentCommunity', '#SantaCruz', '#AWSBolivia', '#CloudComputing'];
 
 // Cómo se nombra cada rol dentro del texto.
 const ROLE_COPY = {
@@ -125,7 +149,7 @@ export function buildCaption({ role = DEFAULT_ROLE, locale = 'es', url = '' } = 
     return [
       `I'll be ${named.en} at ${EVENT.name} 2026 🇧🇴`,
       '',
-      `📅 August 29 · 📍 ${EVENT.venue}`,
+      `📅 October 24, 2026 · 📍 ${EVENT.venue}`,
       url && `Make yours 👉 ${url}`,
       '',
       tags,

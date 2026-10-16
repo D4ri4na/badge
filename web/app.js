@@ -7,7 +7,7 @@
 //
 // Dos cosas que importan del diseño de este archivo:
 //
-// 1. El estado inicial es el perezoso, no un lienzo vacío. El badge ya existe
+// 1. El estado inicial es el mascota, no un lienzo vacío. El badge ya existe
 //    apenas entrás y la foto pasa a ser una mejora opcional. Sin foto ->
 //    mascota, con foto -> tu cara: no hace falta ningún control extra.
 //
@@ -15,7 +15,7 @@
 //    render.mjs, y la vista previa y la descarga usan exactamente el mismo.
 //    Este archivo es solo eventos y estado.
 
-import { PHOTO, resolveFormat, buildCaption } from './theme.mjs';
+import { PHOTO, resolveFormat, buildCaption, contentBox } from './theme.mjs';
 import { panFocus, inspectPhoto } from './framing.mjs';
 import { loadArt, paint, renderBadge } from './render.mjs';
 
@@ -47,6 +47,9 @@ const resetBtn = $('reset');
 const zoomInput = $('zoom');
 const roleSelect = $('role');
 const layoutSelect = $('layout');
+const backgroundSelect = $('background');
+const poseSelect = $('pose');
+const poseField = $('pose-field');
 const submit = $('submit');
 const status = $('status');
 const warnings = $('warnings');
@@ -65,15 +68,29 @@ let badgeFile = null;
 
 zoomInput.max = String(Math.round(PHOTO.maxZoom * 100));
 
-let artReady = loadArt(roleSelect.value).then((a) => (art = a));
+let artReady;
+let artVersion = 0;
+function refreshArt() {
+  const version = ++artVersion;
+  submit.disabled = true;
+  artReady = loadArt(roleSelect.value, backgroundSelect.value, poseSelect.value)
+    .then((next) => { if (version === artVersion) art = next; })
+    .catch((err) => { if (version === artVersion) setStatus(err.message, 'error'); throw err; });
+  return artReady.finally(() => { if (version === artVersion) submit.disabled = false; });
+}
+refreshArt().catch(() => {});
 
 // --- Selectores ---
 
-roleSelect.addEventListener('change', async () => {
-  artReady = loadArt(roleSelect.value).then((a) => (art = a));
-  await artReady;
-  draw();
-});
+for (const selector of [roleSelect, backgroundSelect, poseSelect]) {
+  selector.addEventListener('change', async () => {
+    try {
+      await refreshArt();
+      setStatus('');
+      draw();
+    } catch { /* El error de carga ya está visible en el estado. */ }
+  });
+}
 
 layoutSelect.addEventListener('change', () => {
   sizeCanvas();
@@ -162,8 +179,9 @@ zoomInput.addEventListener('input', () => {
 
 function applyMode() {
   const hasPhoto = Boolean(bitmap);
-  // Sobre el perezoso no hay nada que encuadrar.
+  // Sobre el mascota no hay nada que encuadrar.
   controls.hidden = !hasPhoto;
+  poseField.hidden = hasPhoto;
   pick.hidden = hasPhoto;
   clearBtn.hidden = !hasPhoto;
   canvas.classList.toggle('draggable', hasPhoto);
@@ -188,7 +206,7 @@ canvas.addEventListener('pointermove', (e) => {
     focus,
     { dx: (e.clientX - dragging.x) * k, dy: (e.clientY - dragging.y) * k },
     { width: bitmap.width, height: bitmap.height },
-    { w: canvas.width, h: canvas.height },
+    { w: contentBox({ w: canvas.width, h: canvas.height }).w, h: contentBox({ w: canvas.width, h: canvas.height }).h },
     zoom,
   );
   dragging = { x: e.clientX, y: e.clientY };
@@ -215,6 +233,8 @@ async function draw() {
   try {
     await artReady;
     await paint(ctx, { w: canvas.width, h: canvas.height }, { bitmap, art, focus, zoom });
+  } catch (err) {
+    setStatus(err.message ?? 'No pudimos cargar el diseño.', 'error');
   } finally {
     painting = false;
     if (queued) {
@@ -247,7 +267,7 @@ form.addEventListener('submit', async (e) => {
     badgeUrl = URL.createObjectURL(blob);
     badgeFile = new File([blob], 'badge-acd-bolivia.jpg', { type: 'image/jpeg' });
 
-    caption = buildCaption({ role: roleSelect.value, url: SITE });
+    caption = buildCaption({ role: roleSelect.value, url: 'link pendiente' });
     showResult();
     setStatus('');
   } catch (err) {
@@ -281,7 +301,7 @@ shareBtn.addEventListener('click', async () => {
   try {
     await navigator.share({
       files: [badgeFile],
-      title: 'AWS Community Day Bolivia 2026',
+      title: 'AWS Student Community Day Santa Cruz - Bolivia 2026',
       text: caption,
     });
   } catch {

@@ -1,11 +1,15 @@
-/* Paleta del evento: verde del marco, naranja AWS y el azul Squid Ink. */
+/* Paleta tomada de la gráfica del Student Community Day: degradado de rojo a
+   naranja quemado a verde oliva, texto blanco y acento naranja AWS. */
 :root {
-  --green: #135e43;
-  --green-deep: #111d18;
-  --ink: #0d1a14;
+  --red: #d2392d;
+  --rust: #b0521f;
+  --olive: #4a4a1d;
+  --olive-deep: #2a2d12;
+  --ink: #1f2110;
   --orange: #ff9900;
-  --line: rgba(255, 255, 255, 0.18);
-  --panel: rgba(255, 255, 255, 0.06);
+  --amber: #ffb84a; /* el naranja, más claro, para texto sobre el fondo cálido */
+  --line: rgba(255, 255, 255, 0.22);
+  --panel: rgba(20, 18, 6, 0.28);
   color-scheme: dark;
 }
 
@@ -26,10 +30,32 @@ body {
   margin: 0;
   min-height: 100vh;
   padding: 36px 20px 64px;
-  background: radial-gradient(120% 90% at 50% 0%, var(--green) 0%, var(--ink) 62%);
+  background-color: var(--olive-deep);
+  background-image: linear-gradient(
+    168deg,
+    var(--red) 0%,
+    #c4452a 22%,
+    var(--rust) 48%,
+    var(--olive) 78%,
+    var(--olive-deep) 100%
+  );
+  background-attachment: fixed;
   color: #fff;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
+}
+
+/* Grano fino sobre el degradado, como la textura de la gráfica. Es solo
+   decoración: no recibe clics y va detrás del contenido. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 main {
@@ -52,21 +78,26 @@ header {
 }
 
 .brand {
-  width: min(300px, 72%);
+  width: min(340px, 85%);
   height: auto;
+  aspect-ratio: 91 / 39;
+  object-fit: contain;
+  border-radius: 12px;
 }
 
 h1 {
   margin: 0;
   font-size: clamp(1.5rem, 5vw, 1.9rem);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .tagline {
   margin: 0;
   max-width: 34ch;
   font-size: 0.9rem;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 /* --- Selectores --- */
@@ -78,9 +109,20 @@ form {
 }
 
 .picks {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  flex-wrap: wrap;
+}
+
+.picks .field {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+}
+
+@media (max-width: 560px) {
+  .picks {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .field {
@@ -92,7 +134,7 @@ form {
 }
 
 .field span {
-  opacity: 0.75;
+  opacity: 0.9;
   white-space: nowrap;
 }
 
@@ -104,17 +146,24 @@ form {
 }
 
 .field select {
-  padding: 10px 12px;
+  width: 100%;
+  padding: 10px 32px 10px 12px;
   border: 0;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(20, 18, 6, 0.32);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px 16px;
+  box-shadow: inset 0 0 0 1px var(--line);
   color: #fff;
   font: inherit;
   cursor: pointer;
 }
 
 .field select option {
-  background: var(--green-deep);
+  background: var(--olive-deep);
   color: #fff;
 }
 
@@ -126,12 +175,12 @@ form {
   width: min(340px, 100%);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 14px 36px rgba(30, 10, 0, 0.5);
   transition: box-shadow 0.18s;
 }
 
 .stage.over {
-  box-shadow: 0 0 0 3px var(--orange), 0 14px 36px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 0 3px var(--orange), 0 14px 36px rgba(30, 10, 0, 0.5);
 }
 
 #preview {
@@ -160,7 +209,7 @@ form {
   padding: 0;
   border: 0;
   border-radius: 0;
-  background: rgba(10, 15, 20, 0);
+  background: rgba(24, 16, 4, 0);
   color: #fff;
   font: inherit;
   text-align: center;
@@ -174,7 +223,7 @@ form {
 }
 
 .pick small {
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
 /* En touch no hay hover, así que ahí se muestra siempre y de forma sutil. */
@@ -182,7 +231,7 @@ form {
   .stage:hover .pick,
   .pick:focus-visible {
     opacity: 1;
-    background: rgba(10, 15, 20, 0.62);
+    background: rgba(24, 16, 4, 0.62);
   }
 }
 
@@ -192,7 +241,7 @@ form {
     inset: auto 0 0 0;
     height: auto;
     padding: 14px;
-    background: rgba(10, 15, 20, 0.62);
+    background: rgba(24, 16, 4, 0.62);
   }
 }
 
@@ -207,13 +256,13 @@ form {
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: rgba(10, 15, 20, 0.6);
+  background: rgba(24, 16, 4, 0.6);
   color: #fff;
   cursor: pointer;
 }
 
 .clear:hover {
-  background: rgba(10, 15, 20, 0.85);
+  background: rgba(24, 16, 4, 0.85);
 }
 
 .clear svg {
@@ -242,7 +291,7 @@ form {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--orange);
+  color: var(--amber);
   font: inherit;
   font-size: 0.86rem;
   text-decoration: underline;
@@ -252,7 +301,7 @@ form {
 .hint {
   margin: 0;
   font-size: 0.85rem;
-  opacity: 0.65;
+  opacity: 0.8;
 }
 
 .hint.center {
@@ -267,12 +316,20 @@ button,
   border: 0;
   border-radius: 999px;
   background: var(--orange);
-  color: #111;
+  box-shadow: 0 6px 18px rgba(30, 10, 0, 0.35);
+  color: #1b1405;
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Los botones de texto y el de cerrar no llevan relleno ni sombra de botón. */
+button.link,
+button.clear,
+button.pick {
+  box-shadow: none;
 }
 
 button:disabled {
@@ -282,19 +339,21 @@ button:disabled {
 
 .btn.ghost {
   background: transparent;
-  color: #fff;
   box-shadow: inset 0 0 0 2px var(--line);
+  color: #fff;
 }
 
 .status {
   margin: 0;
   min-height: 1.5em;
   text-align: center;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .status.error {
-  color: #ffb4a2;
+  color: #fff3ec;
+  font-weight: 600;
+  text-shadow: 0 1px 6px rgba(60, 0, 0, 0.7);
   opacity: 1;
 }
 
@@ -305,7 +364,7 @@ button:disabled {
   padding: 14px 18px 14px 34px;
   border-radius: 12px;
   border-left: 3px solid var(--orange);
-  background: rgba(255, 153, 0, 0.1);
+  background: rgba(20, 18, 6, 0.38);
   font-size: 0.92rem;
 }
 
@@ -322,14 +381,14 @@ button:disabled {
 
 .result-title {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .result img {
   width: min(340px, 100%);
   height: auto;
   border-radius: 14px;
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 18px 48px rgba(30, 10, 0, 0.55);
 }
 
 .actions {
@@ -362,7 +421,7 @@ button:disabled {
   font-size: 0.88rem;
   white-space: pre-wrap;
   word-break: break-word;
-  opacity: 0.85;
+  opacity: 0.92;
 }
 
 .result .hint {
